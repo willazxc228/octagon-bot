@@ -1,5 +1,7 @@
 const TelegramBot = require('node-telegram-bot-api');
 const mysql = require('mysql2/promise');
+const QRCode = require('qrcode');
+const puppeteer = require('puppeteer');
 
 const dbConfig = {
   host: 'localhost',
@@ -9,7 +11,6 @@ const dbConfig = {
 };
 
 const pool = mysql.createPool(dbConfig);
-
 
 const TOKEN = '8103981278:AAFmg0wtzeyRODAAOFC-h2ubMxaysOcgTx8';
 const bot = new TelegramBot(TOKEN, {polling: true});
@@ -100,6 +101,68 @@ bot.onText(/\/deleteItem (.+)/, async (msg, match) => {
     await bot.sendMessage(chatId, 'Произошла ошибка при удалении предмета');
   }
 });
+
+// Команда !qr
+bot.onText(/!qr (.+)/, async (msg, match) => {
+  const chatId = msg.chat.id;
+  const text = match[1];
+
+  try {
+    const dataUrl = await QRCode.toDataURL(text, { margin: 2 });
+
+    const base64Data = dataUrl.replace(/^data:image\/png;base64,/, '');
+    const imgBuffer = Buffer.from(base64Data, 'base64');
+
+    await bot.sendPhoto(chatId, imgBuffer, {}, { filename: 'qr.png', contentType: 'image/png' });
+  } catch (err) {
+    console.error('QR error', err);
+    await bot.sendMessage(chatId, 'Не удалось сгенерировать QR-код');
+  }
+});
+
+// Команда !webscr
+bot.onText(/!webscr (https?:\/\/\S+)/, async (msg, match) => {
+  const chatId = msg.chat.id;
+  const url = match[1];
+
+  await bot.sendMessage(chatId, 'Снимаю скриншот, подождите… ⏳');
+
+  let browser;
+  try {
+    browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+    const page = await browser.newPage();
+
+    const NAVIGATION_TIMEOUT = 20_000;             
+    const TOTAL_TIMEOUT      = 20_000;             
+
+    page.setDefaultNavigationTimeout(NAVIGATION_TIMEOUT);
+    page.setDefaultTimeout(NAVIGATION_TIMEOUT);
+
+    const makeScreenshot = async () => {
+      await page.setViewport({ width: 1280, height: 800 });
+      await page.goto(url, { waitUntil: 'networkidle2' });
+      return page.screenshot({ fullPage: true });
+    };
+
+    const buffer = await Promise.race([
+      makeScreenshot(),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Screenshot timeout')), TOTAL_TIMEOUT)
+      )
+    ]);
+
+    await bot.sendPhoto(chatId, buffer);
+  } catch (err) {
+    console.error('Webscr error', err);
+    const text = err.message === 'Screenshot timeout'
+      ? 'Превышено максимальное время создания скриншота'
+      : 'Не удалось сделать скриншот сайта';
+    await bot.sendMessage(chatId, text);
+  } finally {
+    if (browser) await browser.close();
+  }
+});
+
 
 bot.on('polling_error', (error) => {
   console.error(`Ошибка: ${error.code} - ${error.message}`);
