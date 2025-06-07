@@ -1,7 +1,7 @@
 {
   "name": "telegram-octagon-bot",
-  "version": "1.1.0",
-  "description": "Telegram bot for Octagon with multiple commands",
+  "version": "1.2.0",
+  "description": "Telegram bot for Octagon with MySQL integration",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -11,11 +11,13 @@
     "telegram",
     "bot",
     "octagon",
-    "commands"
+    "mysql",
+    "database"
   ],
-  "author": "Grosheva Polina",
+  "author": "Грошева Полина",
   "license": "ISC",
   "dependencies": {
+    "mysql2": "^3.14.1",
     "node-telegram-bot-api": "^0.66.0"
   }
 }
