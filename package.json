@@ -1,28 +1,21 @@
 {
   "name": "telegram-octagon-bot",
-  "version": "1.0.0",
-  "description": "Telegram bot that greets with 'Привет, октагон!'",
+  "version": "1.1.0",
+  "description": "Telegram bot for Octagon with multiple commands",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "telegram",
     "bot",
-    "octagon"
+    "octagon",
+    "commands"
   ],
-  "author": "Polina Grosheva",
+  "author": "Grosheva Polina",
   "license": "ISC",
   "dependencies": {
     "node-telegram-bot-api": "^0.66.0"
-  },
-  "engines": {
-    "node": ">=14.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/willazxc228/telegram-octagon-bot.git"
   }
 }
