@@ -20,6 +20,7 @@
     "mysql2": "^3.14.1",
     "node-telegram-bot-api": "^0.66.0",
     "puppeteer": "^24.10.0",
-    "qrcode": "^1.5.4"
+    "qrcode": "^1.5.4",
+    "set-interval-async": "^3.0.3"
   }
 }
